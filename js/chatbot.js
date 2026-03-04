@@ -395,13 +395,15 @@
     const body = buildLeadPayload(isPartial);
 
     try {
-      const response = await fetch('https://formsubmit.co/ajax/support@tripulse.in', {
+      // FormSubmit AJAX doesn't work with unverified emails, use regular form submission
+      const formData = new FormData();
+      Object.keys(body).forEach(key => {
+        formData.append(key, body[key]);
+      });
+
+      const response = await fetch('https://formsubmit.co/support@tripulse.in', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Accept': 'application/json'
-        },
-        body: JSON.stringify(body)
+        body: formData
       });
 
       if (!isPartial) {
@@ -434,15 +436,20 @@
 
     // Use sendBeacon for reliable delivery on page unload
     if (navigator.sendBeacon) {
-      const blob = new Blob([JSON.stringify(body)], { type: 'application/json' });
-      navigator.sendBeacon('https://formsubmit.co/ajax/support@tripulse.in', blob);
+      const formData = new FormData();
+      Object.keys(body).forEach(key => {
+        formData.append(key, body[key]);
+      });
+      navigator.sendBeacon('https://formsubmit.co/support@tripulse.in', formData);
     } else {
       // Fallback: synchronous XHR
+      const formData = new FormData();
+      Object.keys(body).forEach(key => {
+        formData.append(key, body[key]);
+      });
       const xhr = new XMLHttpRequest();
-      xhr.open('POST', 'https://formsubmit.co/ajax/support@tripulse.in', false);
-      xhr.setRequestHeader('Content-Type', 'application/json');
-      xhr.setRequestHeader('Accept', 'application/json');
-      xhr.send(JSON.stringify(body));
+      xhr.open('POST', 'https://formsubmit.co/support@tripulse.in', false);
+      xhr.send(formData);
     }
   }
 
